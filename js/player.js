@@ -1,12 +1,12 @@
 import {walkImg,runImg,jumpImg,dashImg} from './assets.js';
 
-let playerX = 100;
+let playerX = 400;
 let playerY = 0;
 
 let velocityY = 0;
 
 const gravity = 1.2;
-const jumpPower = -20;
+const jumpPower = -24;
 
 let isJumping = false;
 let isDashing = false;
@@ -62,7 +62,7 @@ export function updatePlayer(CanvasHeight) {
         if (dashTime <= 0) {
 
             isDashing = false;
-            playerX = 100;
+            playerX = 400;
 
             animation = 'run';
             frame = 0;
@@ -84,11 +84,11 @@ export function jump() {
 
 export function dash() {
 
-    if (!isDashing && !isJumping) {
+    if (!isDashing) {
 
         isDashing = true;
         dashTime = dashDuration;
-
+        frontSpeed = frontSpeed + dashSpeed;
         animation = 'dash';
         frame = 0;
     }
@@ -97,6 +97,7 @@ export function dash() {
 export function walk() {
 
     if (!isJumping && !isDashing) {
+        playerX -= 5;
 
         animation = 'walk';
         frame = 0;
@@ -153,6 +154,8 @@ export function drawPlayer(ctx) {
             300,
             300
         );
+        ctx.strokeStyle = 'blue';
+        ctx.strokeRect(playerX + 50, playerY + 50, 140, 180);
     }
 
     gameFrame++;
@@ -174,4 +177,13 @@ export function drawPlayer(ctx) {
             }
         }
     }
+}
+
+export function getPlayerData() {
+    return {
+        x: playerX + 50,
+        y: playerY + 50,
+        width: 140,
+        height: 180
+    };
 }

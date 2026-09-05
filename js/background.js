@@ -6,7 +6,12 @@ let frontX = 0;
 
 const backgroundSpeed = 0.4;
 const buildingsSpeed = 1;
-const frontSpeed = 1.8;
+const normalFrontSpeed = 1.8;
+export let frontSpeed = normalFrontSpeed;
+
+export function setFrontSpeed(isBoosted) {
+    frontSpeed = isBoosted ? normalFrontSpeed * 2 : normalFrontSpeed;
+}
 
 function drawLayer(ctx, image, position, speed, CanvasHeight) {
     

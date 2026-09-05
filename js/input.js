@@ -4,6 +4,7 @@ import {
     walk,
     run
 } from './player.js';
+import { setFrontSpeed } from './background.js';
 
 export function setupInput() {
 
@@ -12,23 +13,27 @@ export function setupInput() {
         if (
             event.key == 'ArrowUp' ||
             event.key == ' '
-        ) {
+        ){
             event.preventDefault();
             jump();
         }
 
         if (
-            event.key == 'Shift' ||
             event.key == 'x' ||
             event.key == 'X'
-        ) {
+        ){
             dash();
         }
 
-        if (
-            event.key == 'ArrowLeft' ||
+        if (event.key == 'Shift') {
+            setFrontSpeed(true);
+        }
+
+        if(
+            event.key == 'ArrowLeft' 
+            ||
             event.key == 'a'
-        ) {
+        ){
             walk();
         }
 
@@ -37,6 +42,12 @@ export function setupInput() {
             event.key == 'd'
         ) {
             run();
+        }
+    });
+
+    document.addEventListener('keyup', function(event) {
+        if (event.key == 'Shift') {
+            setFrontSpeed(false);
         }
     });
 }
