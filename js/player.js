@@ -213,8 +213,7 @@ export function drawPlayer(ctx) {
             300,
             300
         );
-        ctx.strokeStyle = 'blue';
-        ctx.strokeRect(playerX + 90, playerY + 100, 90, 130);
+        
     }
 
     gameFrame++;

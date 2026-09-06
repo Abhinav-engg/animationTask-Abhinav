@@ -75,13 +75,7 @@ export function drawObstacles(ctx) {
                 obstacle.width,
                 obstacle.height
             );
-            ctx.strokeStyle = 'red';
-            ctx.strokeRect(
-                obstacle.x + obstacle.hitboxOffsetX,
-                obstacle.y + obstacle.hitboxOffsetY,
-                obstacle.hitboxWidth,
-                obstacle.hitboxHeight
-            );
+            
         }
     }
 }
