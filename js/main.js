@@ -1,9 +1,12 @@
 import { drawBackground } from './background.js';
 import {
-    setupPlayer,
+    resetPlayer,
     updatePlayer,
     drawPlayer,
-    getPlayerData
+    getPlayerData,
+    triggerHit,
+    isPlayerHit,
+    isHitDone
 } from './player.js';
 import { setupInput } from './input.js';
 import {
@@ -12,6 +15,20 @@ import {
     checkObstacleCollision,
     resetObstacles
 } from './obstacles.js';
+import {
+    updateOrbs,
+    drawOrbs,
+    checkOrbCollision,
+    resetOrbs
+} from './orbs.js';
+import {
+    updateHelicopter,
+    updateBullets,
+    drawHelicopter,
+    drawBullets,
+    checkBulletCollision,
+    resetHelicopter
+} from './helicopter.js';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -21,12 +38,13 @@ let CanvasHeight;
 
 let gameOver = false;
 let score = 0;
+let bonusFromOrb = 0;
 
 function resizeCanvas() {
     CanvasWidth = canvas.width = window.innerWidth;
     CanvasHeight = canvas.height = window.innerHeight;
 
-    setupPlayer(CanvasHeight);
+    resetPlayer(CanvasHeight);
 }
 
 resizeCanvas();
@@ -38,7 +56,7 @@ function drawScore() {
     ctx.font = '24px Arial';
 
     ctx.fillText(
-        'SCORE: ' + Math.floor(score / 60),
+        'SCORE: ' + (Math.floor(score / 60) + bonusFromOrb),
         30,
         40
     );
@@ -59,11 +77,7 @@ function drawGameOver() {
 
     ctx.font = '60px Arial';
 
-    ctx.fillText(
-        'GAME OVER',
-        CanvasWidth / 2,
-        CanvasHeight / 2 - 30
-    );
+    ctx.fillText('GAME OVER',CanvasWidth / 2,CanvasHeight / 2 - 30);
 
     ctx.font = '24px Arial';
 
@@ -79,10 +93,13 @@ function drawGameOver() {
 function restartGame() {
     gameOver = false;
     score = 0;
+    bonusFromOrb = 0;
 
     resetObstacles();
+    resetOrbs();
+    resetHelicopter();
 
-    setupPlayer(CanvasHeight);
+    resetPlayer(CanvasHeight);
 }
 
 function animate() {
@@ -102,21 +119,48 @@ function animate() {
     if (!gameOver) {
         updatePlayer(CanvasHeight);
 
-        updateObstacles(
-            CanvasWidth,
-            CanvasHeight
-        );
+        if (!isPlayerHit()) {
 
-        const player = getPlayerData();
+            updateObstacles(
+                CanvasWidth,
+                CanvasHeight
+            );
 
-        if (checkObstacleCollision(player)) {
-            gameOver = true;
+            updateOrbs(
+                CanvasWidth,
+                CanvasHeight
+            );
+
+            updateHelicopter(CanvasWidth, CanvasHeight);
+            updateBullets(CanvasWidth, CanvasHeight);
+            const player = getPlayerData();
+            
+
+            if (checkObstacleCollision(player)) {
+                gameOver = true;
+            }
+
+            if (checkBulletCollision(player)) {
+                triggerHit();
+            }
+
+            bonusFromOrb += checkOrbCollision(player);
+
+            score++;
         }
 
-        score++;
+        if (isPlayerHit() && isHitDone()) {
+            gameOver = true;
+        }
     }
 
     drawObstacles(ctx);
+
+    drawOrbs(ctx);
+
+    drawHelicopter(ctx);
+
+    drawBullets(ctx);
 
     drawPlayer(ctx);
 

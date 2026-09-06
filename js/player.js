@@ -1,4 +1,4 @@
-import {runImg,jumpImg,dashImg} from './assets.js';
+import {runImg,jumpImg,dashImg,hitImg} from './assets.js';
 import { setDashSpeed } from './background.js';
 import { setDashBoost } from './obstacles.js';
 
@@ -7,16 +7,16 @@ let playerY = 0;
 
 let velocityY = 0;
 
-const gravity = 1.2;
-const jumpPower = -24;
+const gravity = 0.8;
+const jumpPower = -20;
 
 let isJumping = false;
 let isDashing = false;
+let isHit = false;
 
 let dashTime = 0;
 
-const dashDuration = 30;
-const dashSpeed = 14;
+const dashDuration = 50;
 
 const spriteWidth = 256;
 const spriteHeight = 256;
@@ -25,6 +25,7 @@ const columns = 5;
 const runFrames = 22;
 const jumpFrames = 25;
 const dashFrames = 25;
+const hitFrames = 25;
 
 let frame = 0;
 let gameFrame = 0;
@@ -37,7 +38,23 @@ export function setupPlayer(CanvasHeight) {
     playerY = CanvasHeight - 300;
 }
 
+export function resetPlayer(CanvasHeight) {
+    setupPlayer(CanvasHeight);
+    velocityY = 0;
+    isJumping = false;
+    isDashing = false;
+    isHit = false;
+    dashTime = 0;
+    frame = 0;
+    gameFrame = 0;
+    animation = 'run';
+    setDashSpeed(false);
+    setDashBoost(false);
+}
+
 export function updatePlayer(CanvasHeight) {
+
+    if (isHit) return;
 
     if (isJumping) {
 
@@ -55,7 +72,7 @@ export function updatePlayer(CanvasHeight) {
         }
     }
 
-        if (isDashing) {
+    if (isDashing) {
 
         dashTime--;
 
@@ -74,7 +91,7 @@ export function updatePlayer(CanvasHeight) {
 
 export function jump() {
 
-    if (!isJumping && !isDashing) {
+    if (!isJumping && !isDashing && !isHit) {
 
         isJumping = true;
         velocityY = jumpPower;
@@ -86,7 +103,7 @@ export function jump() {
 
 export function dash() {
 
-    if (!isDashing) {
+    if (!isDashing && !isHit) {
 
         isDashing = true;
         dashTime = dashDuration;
@@ -97,6 +114,30 @@ export function dash() {
         animation = 'dash';
         frame = 0;
     }
+}
+
+export function triggerHit() {
+
+    if (!isHit) {
+
+        isHit = true;
+        isJumping = false;
+        isDashing = false;
+
+        setDashSpeed(false);
+        setDashBoost(false);
+
+        animation = 'hit';
+        frame = 0;
+    }
+}
+
+export function isPlayerHit() {
+    return isHit;
+}
+
+export function isHitDone() {
+    return isHit && frame >= hitFrames - 1;
 }
 
 export function drawPlayer(ctx) {
@@ -119,6 +160,11 @@ export function drawPlayer(ctx) {
         totalFrames = dashFrames;
     }
 
+    if(animation == 'hit') {
+        image = hitImg;
+        totalFrames = hitFrames;
+    }
+
     const sourceX =(frame % columns) * spriteWidth;
     const sourceY =Math.floor(frame / columns) * spriteHeight;
 
@@ -136,7 +182,7 @@ export function drawPlayer(ctx) {
             300
         );
         ctx.strokeStyle = 'blue';
-        ctx.strokeRect(playerX + 50, playerY + 50, 140, 180);
+        ctx.strokeRect(playerX + 90, playerY + 100, 90, 150);
     }
 
     gameFrame++;
@@ -145,7 +191,7 @@ export function drawPlayer(ctx) {
 
         frame++;
 
-        if (animation == 'jump') {
+        if (animation == 'jump' || animation == 'hit') {
 
             if (frame >= totalFrames) {
                 frame = totalFrames - 1;
@@ -162,9 +208,9 @@ export function drawPlayer(ctx) {
 
 export function getPlayerData() {
     return {
-        x: playerX + 50,
-        y: playerY + 50,
-        width: 140,
-        height: 180
+        x: playerX + 90,
+        y: playerY + 100,
+        width: 90,
+        height: 150
     };
 }

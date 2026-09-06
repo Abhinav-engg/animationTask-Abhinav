@@ -45,11 +45,20 @@ function createObstacle(CanvasWidth, CanvasHeight) {
     const obstacleWidth = randomImg === blockImg ? 140 : 100;
     const obstacleYposition = randomImg == blockImg ? CanvasHeight - 50 - obstacleHeight : CanvasHeight - 70 - obstacleHeight;
 
+    const hitboxOffsetX = randomImg === blockImg ? 20 : 15;
+    const hitboxOffsetY = randomImg === blockImg ? 25 : 15;
+    const hitboxWidth = randomImg === blockImg ? obstacleWidth - 40 : obstacleWidth - 30;
+    const hitboxHeight = randomImg === blockImg ? obstacleHeight - 40 : obstacleHeight - 25;
+
     obstacles.push({
         x: CanvasWidth + 50,
         y: obstacleYposition,
         width: obstacleWidth,
         height: obstacleHeight,
+        hitboxOffsetX: hitboxOffsetX,
+        hitboxOffsetY: hitboxOffsetY,
+        hitboxWidth: hitboxWidth,
+        hitboxHeight: hitboxHeight,
         speed: obstacleSpeed,
         img: randomImg
     });
@@ -66,8 +75,13 @@ export function drawObstacles(ctx) {
                 obstacle.width,
                 obstacle.height
             );
-            ctx.strokeStyke = 'red';
-            ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            ctx.strokeStyle = 'red';
+            ctx.strokeRect(
+                obstacle.x + obstacle.hitboxOffsetX,
+                obstacle.y + obstacle.hitboxOffsetY,
+                obstacle.hitboxWidth,
+                obstacle.hitboxHeight
+            );
         }
     }
 }
@@ -80,10 +94,10 @@ export function checkObstacleCollision(player) {
         let playerTop = player.y;
         let playerBottom = player.y + player.height;
 
-        let obstacleLeft = obstacle.x;
-        let obstacleRight = obstacle.x + obstacle.width;
-        let obstacleTop = obstacle.y;
-        let obstacleBottom = obstacle.y + obstacle.height;
+        let obstacleLeft = obstacle.x + obstacle.hitboxOffsetX;
+        let obstacleRight = obstacleLeft + obstacle.hitboxWidth;
+        let obstacleTop = obstacle.y + obstacle.hitboxOffsetY;
+        let obstacleBottom = obstacleTop + obstacle.hitboxHeight;
 
         if (playerRight > obstacleLeft) {
             if (playerLeft < obstacleRight) {
@@ -98,7 +112,6 @@ export function checkObstacleCollision(player) {
 
     return false;
 }
-
 export function resetObstacles() {
     obstacles = [];
     obstacleTimer = 0;
