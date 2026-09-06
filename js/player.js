@@ -1,6 +1,6 @@
 import {runImg,jumpImg,dashImg,hitImg} from './assets.js';
 import { setDashSpeed } from './background.js';
-import { setDashBoost } from './obstacles.js';
+import { setDashBoost, getObstacleUnder } from './obstacles.js';
 
 let playerX = 400;
 let playerY = 0;
@@ -8,11 +8,12 @@ let playerY = 0;
 let velocityY = 0;
 
 const gravity = 0.8;
-const jumpPower = -20;
+const jumpPower = -24;
 
 let isJumping = false;
 let isDashing = false;
 let isHit = false;
+let isOnPlatform = false;
 
 let dashTime = 0;
 
@@ -34,41 +35,70 @@ const staggerFrames = 6;
 
 let animation = 'run';
 
-export function setupPlayer(CanvasHeight) {
+export function resetPlayer(CanvasHeight) {
     playerY = CanvasHeight - 300;
+    isJumping = false;
+    isOnPlatform = false;
+    isHit = false;
+    velocityY = 0;
 }
 
-export function resetPlayer(CanvasHeight) {
-    setupPlayer(CanvasHeight);
-    velocityY = 0;
-    isJumping = false;
-    isDashing = false;
-    isHit = false;
-    dashTime = 0;
-    frame = 0;
-    gameFrame = 0;
-    animation = 'run';
-    setDashSpeed(false);
-    setDashBoost(false);
+export function isPlayerOnPlatform() {
+    return isOnPlatform;
 }
 
 export function updatePlayer(CanvasHeight) {
 
     if (isHit) return;
 
+    const playerLeft = playerX + 50;
+    const playerRight = playerLeft + 140;
+
+    const obstacleUnderfoot = getObstacleUnder(playerLeft, playerRight);
+    const obstacleTop = obstacleUnderfoot ? obstacleUnderfoot.y + obstacleUnderfoot.hitboxOffsetY : null;
+
+    const baseGroundY = CanvasHeight - 300;
+
     if (isJumping) {
+
+        const prevBottom = playerY + 230;
 
         playerY += velocityY;
         velocityY += gravity;
 
-        if (playerY >= CanvasHeight - 300) {
+        const newBottom = playerY + 230;
 
-            playerY = CanvasHeight - 300;
+        if (obstacleUnderfoot && velocityY > 0 && prevBottom <= obstacleTop && newBottom >= obstacleTop) {
+
+            playerY = obstacleTop - 230;
             velocityY = 0;
 
             isJumping = false;
+            isOnPlatform = true;
+
             animation = 'run';
             frame = 0;
+
+        } else if (!obstacleUnderfoot && playerY >= baseGroundY) {
+
+            playerY = baseGroundY;
+            velocityY = 0;
+
+            isJumping = false;
+            isOnPlatform = false;
+
+            animation = 'run';
+            frame = 0;
+        }
+
+    } else if (isOnPlatform) {
+
+        if (obstacleUnderfoot) {
+            playerY = obstacleTop - 230;
+        } else {
+            isJumping = true;
+            isOnPlatform = false;
+            velocityY = 0;
         }
     }
 
@@ -94,6 +124,7 @@ export function jump() {
     if (!isJumping && !isDashing && !isHit) {
 
         isJumping = true;
+        isOnPlatform = false;
         velocityY = jumpPower;
 
         animation = 'jump';
@@ -123,6 +154,7 @@ export function triggerHit() {
         isHit = true;
         isJumping = false;
         isDashing = false;
+        isOnPlatform = false;
 
         setDashSpeed(false);
         setDashBoost(false);
@@ -182,7 +214,7 @@ export function drawPlayer(ctx) {
             300
         );
         ctx.strokeStyle = 'blue';
-        ctx.strokeRect(playerX + 90, playerY + 100, 90, 150);
+        ctx.strokeRect(playerX + 90, playerY + 100, 90, 130);
     }
 
     gameFrame++;
@@ -211,6 +243,6 @@ export function getPlayerData() {
         x: playerX + 90,
         y: playerY + 100,
         width: 90,
-        height: 150
+        height: 130
     };
 }

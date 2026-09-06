@@ -6,7 +6,8 @@ import {
     getPlayerData,
     triggerHit,
     isPlayerHit,
-    isHitDone
+    isHitDone,
+    isPlayerOnPlatform
 } from './player.js';
 import { setupInput } from './input.js';
 import {
@@ -48,6 +49,24 @@ function resizeCanvas() {
 }
 
 resizeCanvas();
+
+function drawGround() {
+    ctx.fillStyle = '#291346';
+    ctx.fillRect(
+        0,
+        CanvasHeight - 85,
+        CanvasWidth,
+        5
+    );
+
+    ctx.fillStyle = '#0d0718';
+    ctx.fillRect(
+        0,
+        CanvasHeight - 80,
+        CanvasWidth,
+        80
+    );
+}
 
 window.addEventListener('resize', resizeCanvas);
 
@@ -115,6 +134,7 @@ function animate() {
     );
 
     drawBackground(ctx, CanvasHeight);
+drawGround();
 
     if (!gameOver) {
         updatePlayer(CanvasHeight);
@@ -136,7 +156,7 @@ function animate() {
             const player = getPlayerData();
             
 
-            if (checkObstacleCollision(player)) {
+            if (!isPlayerOnPlatform() && checkObstacleCollision(player)) {
                 gameOver = true;
             }
 
@@ -155,17 +175,11 @@ function animate() {
     }
 
     drawObstacles(ctx);
-
     drawOrbs(ctx);
-
     drawHelicopter(ctx);
-
     drawBullets(ctx);
-
     drawPlayer(ctx);
-
     drawScore();
-
     if (gameOver) {
         drawGameOver();
     }

@@ -86,6 +86,19 @@ export function drawObstacles(ctx) {
     }
 }
 
+export function getObstacleUnder(playerLeft, playerRight) {
+    for (let obstacle of obstacles) {
+        const obstacleLeft = obstacle.x + obstacle.hitboxOffsetX;
+        const obstacleRight = obstacleLeft + obstacle.hitboxWidth;
+
+        if (playerRight > obstacleLeft && playerLeft < obstacleRight) {
+            return obstacle;
+        }
+    }
+
+    return null;
+}
+
 export function checkObstacleCollision(player) {
     for (let obstacle of obstacles) {
 
