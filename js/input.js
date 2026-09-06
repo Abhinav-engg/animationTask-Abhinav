@@ -1,14 +1,13 @@
 import {
     jump,
-    dash,
-    walk,
-    run
+    dash
 } from './player.js';
-import { setFrontSpeed } from './background.js';
+import { increaseFrontSpeed, decreaseFrontSpeed } from './background.js';
 
 export function setupInput() {
 
     document.addEventListener('keydown', function(event) {
+        const key = event.key.toLowerCase();
 
         if (
             event.key == 'ArrowUp' ||
@@ -19,35 +18,24 @@ export function setupInput() {
         }
 
         if (
-            event.key == 'x' ||
-            event.key == 'X'
+            key == 'x'
         ){
             dash();
-        }
-
-        if (event.key == 'Shift') {
-            setFrontSpeed(true);
         }
 
         if(
             event.key == 'ArrowLeft' 
             ||
-            event.key == 'a'
+            key == 'a'
         ){
-            walk();
+            decreaseFrontSpeed();
         }
 
         if (
             event.key == 'ArrowRight' ||
-            event.key == 'd'
+            key == 'd'
         ) {
-            run();
-        }
-    });
-
-    document.addEventListener('keyup', function(event) {
-        if (event.key == 'Shift') {
-            setFrontSpeed(false);
+            increaseFrontSpeed();
         }
     });
 }

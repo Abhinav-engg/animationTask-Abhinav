@@ -1,4 +1,6 @@
-import {walkImg,runImg,jumpImg,dashImg} from './assets.js';
+import {runImg,jumpImg,dashImg} from './assets.js';
+import { setDashSpeed } from './background.js';
+import { setDashBoost } from './obstacles.js';
 
 let playerX = 400;
 let playerY = 0;
@@ -13,14 +15,13 @@ let isDashing = false;
 
 let dashTime = 0;
 
-const dashDuration = 50;
+const dashDuration = 30;
 const dashSpeed = 14;
 
 const spriteWidth = 256;
 const spriteHeight = 256;
 const columns = 5;
 
-const walkFrames = 18;
 const runFrames = 22;
 const jumpFrames = 25;
 const dashFrames = 25;
@@ -54,15 +55,16 @@ export function updatePlayer(CanvasHeight) {
         }
     }
 
-    if (isDashing) {
+        if (isDashing) {
 
-        playerX += dashSpeed;
         dashTime--;
 
         if (dashTime <= 0) {
 
             isDashing = false;
-            playerX = 400;
+
+            setDashSpeed(false);
+            setDashBoost(false);
 
             animation = 'run';
             frame = 0;
@@ -88,27 +90,11 @@ export function dash() {
 
         isDashing = true;
         dashTime = dashDuration;
-        frontSpeed = frontSpeed + dashSpeed;
+
+        setDashSpeed(true);
+        setDashBoost(true);
+
         animation = 'dash';
-        frame = 0;
-    }
-}
-
-export function walk() {
-
-    if (!isJumping && !isDashing) {
-        playerX -= 5;
-
-        animation = 'walk';
-        frame = 0;
-    }
-}
-
-export function run() {
-
-    if (!isJumping && !isDashing) {
-
-        animation = 'run';
         frame = 0;
     }
 }
@@ -121,11 +107,6 @@ export function drawPlayer(ctx) {
     if(animation == 'run') {
         image = runImg;
         totalFrames = runFrames;
-    }
-
-    if(animation =='walk') {
-        image = walkImg;
-        totalFrames= walkFrames;
     }
 
     if(animation == 'jump') {

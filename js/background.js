@@ -6,11 +6,38 @@ let frontX = 0;
 
 const backgroundSpeed = 0.4;
 const buildingsSpeed = 1;
-const normalFrontSpeed = 1.8;
+
+const minFrontSpeed = 1;
+const maxFrontSpeed = 4;
+const dashFrontSpeed = 6;
+const speedStep = 0.5;
+
+let normalFrontSpeed = 1.8;
 export let frontSpeed = normalFrontSpeed;
 
-export function setFrontSpeed(isBoosted) {
-    frontSpeed = isBoosted ? normalFrontSpeed * 2 : normalFrontSpeed;
+let isDashing = false;
+
+export function increaseFrontSpeed() {
+    if (isDashing) return;
+
+    normalFrontSpeed = Math.min(normalFrontSpeed + speedStep, maxFrontSpeed);
+    frontSpeed = normalFrontSpeed;
+}
+
+export function decreaseFrontSpeed() {
+    if (isDashing) return;
+
+    normalFrontSpeed = Math.max(normalFrontSpeed - speedStep, minFrontSpeed);
+    frontSpeed = normalFrontSpeed;
+}
+
+export function setDashSpeed(active) {
+    isDashing = active;
+    frontSpeed = active ? dashFrontSpeed : normalFrontSpeed;
+}
+
+export function getSpeedMultiplier() {
+    return frontSpeed / 1.8;
 }
 
 function drawLayer(ctx, image, position, speed, CanvasHeight) {
